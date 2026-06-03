@@ -10,7 +10,7 @@ st.set_page_config(page_title="Accident Severity Predictor", page_icon="🚦", l
 
 PLOT_BG   = '#1a1033'
 PLOT_FONT = '#b2bec3'
-PLOT_GRID = '#ffffff15'
+PLOT_GRID = 'rgba(255,255,255,0.08)'
 
 st.markdown("""
 <style>
