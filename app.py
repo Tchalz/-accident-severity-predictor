@@ -339,8 +339,7 @@ with tab1:
         ax.set_xlim(0, 115)
         ax.set_xlabel('Probability (%)', color='#b2bec3', fontsize=9)
         ax.tick_params(colors='#b2bec3', labelsize=9)
-        for spine in ax.spines.values():
-            spine.set_edgecolor((1,1,1,0.1))
+        ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
         plt.tight_layout()
         st.pyplot(fig)
         plt.close()
@@ -366,8 +365,7 @@ with tab2:
         ax2.set_xlabel('Importance Score', color='#b2bec3', fontsize=9)
         ax2.tick_params(colors='#b2bec3', labelsize=8)
         ax2.set_title('Top 15 Feature Importances', color='#f9ca24', fontsize=11, pad=10)
-        for spine in ax2.spines.values():
-            spine.set_edgecolor((1,1,1,0.08))
+        ax2.spines["top"].set_visible(False); ax2.spines["right"].set_visible(False)
         plt.tight_layout()
         st.pyplot(fig2)
         plt.close()
@@ -399,8 +397,7 @@ with tab2:
         ax3.set_title('Precision · Recall · F1 by Class', color='#f9ca24', fontsize=11, pad=10)
         ax3.legend(facecolor='#1a1a2e', edgecolor='none', labelcolor='#b2bec3', fontsize=8)
         ax3.tick_params(colors='#b2bec3', labelsize=8)
-        for spine in ax3.spines.values():
-            spine.set_edgecolor((1,1,1,0.08))
+        ax3.spines["top"].set_visible(False); ax3.spines["right"].set_visible(False)
         plt.tight_layout()
         st.pyplot(fig3)
         plt.close()
