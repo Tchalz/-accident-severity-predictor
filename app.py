@@ -134,16 +134,14 @@ with tab1:
 
             encoded    = encoder.transform(input_data)
             selected   = selector.transform(encoded)
-            proba      = model.predict_proba(selected)[0]
-            confidence = np.max(proba) * 100
-
-            thresholds = {0: 0.05, 1: 0.20, 2: 0.60}
-            if proba[0] >= thresholds[0]:
-                label = 'Fatal injury'
-            elif proba[1] >= thresholds[1]:
-                label = 'Serious Injury'
-            else:
-                label = 'Slight Injury'
+            proba_raw  = model.predict_proba(selected)[0]
+            # model.classes_ gives the integer codes in proba order; decode them to string labels
+            class_labels = lb.inverse_transform(model.classes_)
+            pred_index   = np.argmax(proba_raw)
+            label        = lb.inverse_transform([model.classes_[pred_index]])[0]
+            confidence   = proba_raw[pred_index] * 100
+            # Build a clean dict: label -> probability, for display
+            proba_dict   = dict(zip(class_labels, proba_raw))
 
             if label == 'Fatal injury':
                 st.error(f'☠️ **Predicted Severity: {label}** — Immediate emergency response required.  \n📊 Confidence: **{confidence:.1f}%**')
@@ -153,10 +151,14 @@ with tab1:
                 st.success(f'✅ **Predicted Severity: {label}** — Minor injuries expected.  \n📊 Confidence: **{confidence:.1f}%**')
 
             st.markdown('<div class="section-head">📊 Class Probabilities</div>', unsafe_allow_html=True)
+            color_map    = {'Fatal injury': '#eb4d4b', 'Serious Injury': '#f0932b', 'Slight Injury': '#6ab04c'}
+            chart_labels = list(proba_dict.keys())
+            chart_proba  = [proba_dict[c] * 100 for c in chart_labels]
+            chart_colors = [color_map[c] for c in chart_labels]
             fig_prob = go.Figure(go.Bar(
-                x=proba * 100, y=lb.classes_, orientation='h',
-                marker_color=['#eb4d4b','#f0932b','#6ab04c'],
-                text=[f'{p*100:.1f}%' for p in proba],
+                x=chart_proba, y=chart_labels, orientation='h',
+                marker_color=chart_colors,
+                text=[f'{p:.1f}%' for p in chart_proba],
                 textposition='outside', textfont=dict(color='white', size=11)
             ))
             fig_prob.update_layout(
@@ -177,9 +179,9 @@ with tab1:
             })
             result_df['Prediction'] = label
             result_df['Confidence'] = f'{confidence:.1f}%'
-            result_df['Fatal_prob'] = f'{proba[0]*100:.1f}%'
-            result_df['Serious_prob'] = f'{proba[1]*100:.1f}%'
-            result_df['Slight_prob'] = f'{proba[2]*100:.1f}%'
+            result_df['Fatal_prob']   = f'{proba_dict.get("Fatal injury", 0)*100:.1f}%'
+            result_df['Serious_prob'] = f'{proba_dict.get("Serious Injury", 0)*100:.1f}%'
+            result_df['Slight_prob']  = f'{proba_dict.get("Slight Injury", 0)*100:.1f}%'
 
             csv = result_df.to_csv(index=False).encode('utf-8')
             st.download_button(
